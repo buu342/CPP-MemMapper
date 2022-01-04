@@ -3,6 +3,11 @@
 
 Item::Item(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name) : wxPanel(parent, id, pos, size, style, name)
 {
+	// Initialize private variables
+	this->col_alpha = 128;
+	this->col_back = wxColor(rand()%255, rand()%255, rand()%255, this->col_alpha);
+	this->col_text = wxColor(0, 0, 0, 255);
+
 	// Force the height of the item
 	this->SetMinSize(wxSize(-1,102));
 	this->SetMaxSize(wxSize(-1,102));
@@ -48,7 +53,7 @@ Item::Item(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& si
 	this->m_ItemElem_LabelAlpha = new wxStaticText(this, wxID_ANY, wxT("Alpha:"), wxDefaultPosition, wxDefaultSize, 0);
 	this->m_ItemElem_LabelAlpha->Wrap(-1);
 	m_ItemElem_Sizer2->Add(this->m_ItemElem_LabelAlpha, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-	this->m_ItemElem_SliderAlpha = new wxSlider(this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+	this->m_ItemElem_SliderAlpha = new wxSlider(this, wxID_ANY, 128, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
 	m_ItemElem_Sizer2->Add(this->m_ItemElem_SliderAlpha, 0, wxALL|wxEXPAND, 5);
 	m_ItemElem_DataSizer->Add(m_ItemElem_Sizer2, 1, wxEXPAND, 5);
 
@@ -101,11 +106,23 @@ Item::Item(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& si
 	this->m_ItemElem_ButtonUp->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonUpOnButtonClick), NULL, this);
 	this->m_ItemElem_ButtonDown->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonDownOnButtonClick), NULL, this);
 	this->m_ItemElem_ButtonDelete->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonDeleteOnButtonClick), NULL, this);
+	this->m_ItemElem_ButtonColor->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonColorOnButtonClick), NULL, this);
+	this->m_ItemElem_InputName->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( Item::m_ItemElem_InputNameOnText ), NULL, this );
+	this->m_ItemElem_SliderAlpha->Connect( wxEVT_SLIDER, wxCommandEventHandler( Item::m_ItemElem_SliderAlphaOnSlider ), NULL, this );
+	this->m_ItemElem_SpinStart->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Item::m_ItemElem_SpinStartOnSpinCtrl ), NULL, this );
+	this->m_ItemElem_SpinLength->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Item::m_ItemElem_SpinLengthOnSpinCtrl ), NULL, this );
 }
 
 Item::~Item()
 {
-
+	this->m_ItemElem_ButtonUp->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonUpOnButtonClick), NULL, this);
+	this->m_ItemElem_ButtonDown->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonDownOnButtonClick), NULL, this);
+	this->m_ItemElem_ButtonDelete->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonDeleteOnButtonClick), NULL, this);
+	this->m_ItemElem_ButtonColor->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Item::m_ItemElem_ButtonColorOnButtonClick), NULL, this);
+	this->m_ItemElem_InputName->Disconnect(wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(Item::m_ItemElem_InputNameOnText), NULL, this);
+	this->m_ItemElem_SliderAlpha->Disconnect(wxEVT_SLIDER, wxCommandEventHandler(Item::m_ItemElem_SliderAlphaOnSlider), NULL, this);
+	this->m_ItemElem_SpinStart->Disconnect(wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler(Item::m_ItemElem_SpinStartOnSpinCtrl ), NULL, this);
+	this->m_ItemElem_SpinLength->Disconnect(wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler(Item::m_ItemElem_SpinLengthOnSpinCtrl), NULL, this);
 }
 
 void Item::SetInstance(Main* instance)
@@ -127,6 +144,39 @@ void Item::m_ItemElem_ButtonDeleteOnButtonClick(wxCommandEvent& event)
 {
 	this->instance->RemoveItem(this);
 	delete this; // Commit sudoku
+}
+
+void Item::m_ItemElem_ButtonColorOnButtonClick(wxCommandEvent& event)
+{
+	wxColor col;
+	wxColourDialog dlg(this->instance);
+	dlg.SetTitle(wxString("Color Picker"));
+	if (dlg.ShowModal() != wxID_OK)
+		return;
+	col = dlg.GetColourData().GetColour();
+	this->col_back = wxColor(col.Red(), col.Green(), col.Blue(), this->m_ItemElem_SliderAlpha->GetValue());
+	this->instance->RefreshDrawing();
+}
+
+void Item::m_ItemElem_InputNameOnText(wxCommandEvent& event)
+{
+	this->instance->RefreshDrawing();
+}
+
+void Item::m_ItemElem_SliderAlphaOnSlider(wxCommandEvent& event)
+{
+	this->col_back = wxColor(this->col_back.Red(), this->col_back.Green(), this->col_back.Blue(), this->m_ItemElem_SliderAlpha->GetValue());
+	this->instance->RefreshDrawing();
+}
+
+void Item::m_ItemElem_SpinStartOnSpinCtrl(wxSpinEvent& event)
+{
+	this->instance->RefreshDrawing();
+}
+
+void Item::m_ItemElem_SpinLengthOnSpinCtrl(wxSpinEvent& event)
+{
+	this->instance->RefreshDrawing();
 }
 
 void Item::SetUpButtonState(bool enabled)
@@ -154,12 +204,17 @@ int Item::GetMemLength()
 	return this->m_ItemElem_SpinLength->GetValue();
 }
 
+int Item::GetMemEnd()
+{
+	return this->m_ItemElem_SpinStart->GetValue()+this->m_ItemElem_SpinLength->GetValue();
+}
+
 wxColor Item::GetBackColor()
 {
-	return wxColor(rand()%255, rand()%255, rand()%255, 255*(((float)this->m_ItemElem_SliderAlpha->GetValue())/100));
+	return this->col_back;
 }
 
 wxColor Item::GetFontColor()
 {
-	return wxColor(0, 0, 0, 255);
+	return this->col_text;
 }

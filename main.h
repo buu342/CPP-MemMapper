@@ -33,6 +33,8 @@ typedef struct IUnknown IUnknown;
 class Main : public wxFrame
 {
 	private:
+		int mem_start;
+		int mem_end;
 		std::list<void*> list_Items;
 		void FixItemMoverButtons();
 
@@ -77,4 +79,5 @@ class Main : public wxFrame
 		void MoveUpItem(void* item);
 		void MoveDownItem(void* item);
 		void RemoveItem(void* item);
+		void RefreshDrawing();
 };

@@ -19,11 +19,15 @@
 #include <wx/slider.h>
 #include <wx/spinctrl.h>
 #include <wx/panel.h>
+#include <wx/colordlg.h>
 
 class Item : public wxPanel
 {
 	private:
 		Main* instance;
+		int     col_alpha;
+		wxColor col_back;
+		wxColor col_text;
 
 	protected:
 		wxStaticText* m_ItemElem_LabelName;
@@ -42,6 +46,11 @@ class Item : public wxPanel
 		void m_ItemElem_ButtonUpOnButtonClick(wxCommandEvent& event);
 		void m_ItemElem_ButtonDownOnButtonClick(wxCommandEvent& event);
 		void m_ItemElem_ButtonDeleteOnButtonClick(wxCommandEvent& event);
+		void m_ItemElem_ButtonColorOnButtonClick(wxCommandEvent& event);
+		void m_ItemElem_InputNameOnText(wxCommandEvent& event);
+		void m_ItemElem_SliderAlphaOnSlider(wxCommandEvent& event);
+		void m_ItemElem_SpinStartOnSpinCtrl(wxSpinEvent& event);
+		void m_ItemElem_SpinLengthOnSpinCtrl(wxSpinEvent& event);
 
 	public:
 		Item(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1,-1), long style = wxBORDER_SIMPLE|wxTAB_TRAVERSAL|wxEXPAND, const wxString& name = wxEmptyString);
@@ -52,6 +61,7 @@ class Item : public wxPanel
 		wxString GetName();
 		int GetMemStart();
 		int GetMemLength();
+		int GetMemEnd();
 		wxColor GetBackColor();
 		wxColor GetFontColor();
 };

@@ -9,9 +9,13 @@
 
 Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
 {
-	// Initialize
+	// Initialize wxWidgets
 	wxInitAllImageHandlers();
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
+
+	// Initialize private variables
+	mem_start = DEFAULT_MEMSTART;
+	mem_end   = DEFAULT_MEMEND;
 
 	// Add the window splitter with a scroll bar
 	wxBoxSizer*m_ProgramSizer = new wxBoxSizer(wxVERTICAL);
@@ -216,11 +220,16 @@ void Main::FixItemMoverButtons()
 	}
 }
 
+void Main::RefreshDrawing()
+{
+	this->m_DrawPanel->Refresh();
+}
+
 void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 {
 	wxString text;
-	int rectx, recty, rectw, recth;
-	int textx, texty, textw, texth;
+	float rectx, recty, rectw, recth;
+	float textx, texty, textw, texth;
 	std::list<void*>::iterator it;
 	wxBufferedPaintDC dc(this->m_DrawPanel);
 	wxSize framesize = this->m_DrawPanel->GetSize();
@@ -238,43 +247,43 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 	// Now draw the memory map
 	dc.SetPen(*wxBLACK_PEN);
 	dc.SetBrush(*wxTRANSPARENT_BRUSH);
-	dc.DrawRectangle(rectx, recty, rectw, recth);
+	dc.DrawRectangle(round(rectx), round(recty), round(rectw), round(recth));
 
 	// Draw the start and end of the memory map
 	dc.SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
-	text = wxString::Format(wxT("0x%08x"), DEFAULT_MEMSTART);
+	text = wxString::Format(wxT("0x%08x"), mem_start);
 	framesize = dc.GetTextExtent(text);
 	textw = framesize.x;
 	texth = framesize.y;
 	textx = rectx - textw - 4;
 	texty = recty - texth/2;
-	dc.DrawText(text, textx, texty);
-	text = wxString::Format(wxT("0x%08x"), DEFAULT_MEMEND);
+	dc.DrawText(text, round(textx), round(texty));
+	text = wxString::Format(wxT("0x%08x"), mem_end);
 	framesize = dc.GetTextExtent(text);
 	textw = framesize.x;
 	texth = framesize.y;
 	textx = rectx - textw - 4;
 	texty = recty+recth - texth/2;
 	dc.SetFont(*wxNORMAL_FONT);
-	dc.DrawText(text, textx, texty);
+	dc.DrawText(text, round(textx), round(texty));
 
 	// Draw each item into the memory map
 	for (it = this->list_Items.begin(); it != this->list_Items.end(); ++it)
 	{
-		float rectlen = DEFAULT_MEMEND - DEFAULT_MEMSTART-1;
-		int elemx, elemy, elemw, elemh;
+		float rectlen = mem_end - mem_start;
+		float elemx, elemy, elemw, elemh;
 		Item* elem = (Item*)*it;
 
 		// Find out how much of the rectangle this element occupies
 		elemw = rectw;
 		elemx = rectx;
-		elemy = recty + recth*(elem->GetMemStart()/rectlen);
-		elemh = recth*(elem->GetMemLength()/rectlen);
+		elemy = recty + recth*(((float)elem->GetMemStart())/rectlen);
+		elemh = recth*(((float)elem->GetMemLength())/rectlen);
 
 		// Draw the rectangle
 		dc.SetPen(*wxBLACK_PEN);
 		dc.SetBrush(elem->GetBackColor());
-		dc.DrawRectangle(elemx, elemy, elemw, elemh);
+		dc.DrawRectangle(round(elemx), round(elemy), round(elemw), round(elemh));
 
 		// Draw the item name
 		dc.SetPen(elem->GetFontColor());
@@ -284,6 +293,6 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 		texth = framesize.y;
 		textx = elemx + elemw/2 - textw/2;
 		texty = elemy + elemh/2 - texth/2;
-		dc.DrawText(text, textx, texty);
+		dc.DrawText(text, round(textx), round(texty));
 	}
 }
