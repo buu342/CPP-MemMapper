@@ -52,6 +52,7 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->m_ToolBarElem_New = this->m_ToolBar->AddTool(wxID_ANY, wxT("New project"), wxBitmap(wxT("resources/new.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new project"), wxEmptyString, NULL);
 	this->m_ToolBarElem_Open = this->m_ToolBar->AddTool(wxID_ANY, wxT("Open project"), wxBitmap(wxT("resources/open.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Load a project"), wxEmptyString, NULL);
 	this->m_ToolBarElem_Save = this->m_ToolBar->AddTool(wxID_ANY, wxT("Save project"), wxBitmap(wxT("resources/save.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Save this project"), wxEmptyString, NULL);
+	this->m_ToolBarElem_Export = this->m_ToolBar->AddTool(wxID_ANY, wxT("Export image"), wxBitmap(wxT("resources/export.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Export the memory map as an image"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
 	this->m_ToolBarElem_NewItem = this->m_ToolBar->AddTool(wxID_ANY, wxT("New item"), wxBitmap(wxT("resources/newmem.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
@@ -67,6 +68,7 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->Connect(this->m_ToolBarElem_New->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked));
 	this->Connect(this->m_ToolBarElem_Open->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked));
 	this->Connect(this->m_ToolBarElem_Save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked));
+	this->Connect(this->m_ToolBarElem_Export->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_ExportOnToolClicked));
 	this->Connect(this->m_ToolBarElem_NewItem->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked));
 	this->Connect(this->m_ToolBarElem_Preferences->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_PreferencesOnToolClicked));
 	this->m_DrawPanel->Connect(wxEVT_PAINT, wxPaintEventHandler(Main::m_DrawPanelOnPaint), NULL, this);
@@ -79,6 +81,7 @@ Main::~Main()
 	this->Disconnect(this->m_ToolBarElem_New->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked));
 	this->Disconnect(this->m_ToolBarElem_Open->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked));
 	this->Disconnect(this->m_ToolBarElem_Save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked));
+	this->Disconnect(this->m_ToolBarElem_Export->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_ExportOnToolClicked));
 	this->Disconnect(this->m_ToolBarElem_NewItem->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked));
 	this->Disconnect(this->m_ToolBarElem_Preferences->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_PreferencesOnToolClicked));
 	this->m_DrawPanel->Disconnect(wxEVT_PAINT, wxPaintEventHandler(Main::m_DrawPanelOnPaint), NULL, this);
@@ -243,6 +246,22 @@ void Main::m_ProgramSplitterOnSplitterUnsplit(wxSplitterEvent& event)
 	event.Veto();
 }
 
+void Main::m_ToolBarElem_ExportOnToolClicked(wxCommandEvent& event)
+{
+	wxFileDialog fileDialogue(this, _("Export Memory Map"), "", "", "PNG image (*.png)|*.png", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+
+	// Ensure the user didn't cancel
+	if (fileDialogue.ShowModal() == wxID_CANCEL)
+		return;
+
+	// Generate the image
+	wxBitmap image(this->m_DrawPanel->GetSize(), 32);
+	wxMemoryDC dc(image);
+	dc.SetBrush(*wxWHITE_BRUSH);
+	this->Paint(&dc, this->m_DrawPanel->GetSize());
+	image.ConvertToImage().SaveFile(fileDialogue.GetPath(), wxBITMAP_TYPE_PNG);
+}
+
 void* Main::NewItem()
 {
 	Item* it = new Item(this->m_ItemsScrollList);
@@ -380,16 +399,20 @@ void Main::RefreshDrawing()
 
 void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 {
+	wxBufferedPaintDC dc(this->m_DrawPanel);
+	dc.SetBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_APPWORKSPACE));
+	this->Paint(&dc, this->m_DrawPanel->GetSize());
+}
+
+void Main::Paint(wxDC* dc, wxSize framesize)
+{
 	wxString text;
 	float rectx, recty, rectw, recth;
 	float textx, texty, textw, texth;
 	std::list<void*>::iterator it;
-	wxBufferedPaintDC dc(this->m_DrawPanel);
-	wxSize framesize = this->m_DrawPanel->GetSize();
 
 	// Draw the background
-	dc.SetBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_APPWORKSPACE));
-	dc.DrawRectangle(-1, -1, framesize.x+2, framesize.y+2);
+	dc->DrawRectangle(-1, -1, framesize.x+2, framesize.y+2);
 
 	// Calculate the rectangle size and position
 	rectw = framesize.x*0.4;
@@ -398,27 +421,27 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 	recty = framesize.y/2 - recth/2;
 
 	// Now draw the memory map
-	dc.SetPen(*wxBLACK_PEN);
-	dc.SetBrush(*wxTRANSPARENT_BRUSH);
-	dc.DrawRectangle(round(rectx), round(recty), round(rectw), round(recth));
+	dc->SetPen(*wxBLACK_PEN);
+	dc->SetBrush(*wxTRANSPARENT_BRUSH);
+	dc->DrawRectangle(round(rectx), round(recty), round(rectw), round(recth));
 
 	// Draw the start and end of the memory map
-	dc.SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
+	dc->SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
 	text = wxString::Format(wxT("0x%08x"), settings_memstart);
-	framesize = dc.GetTextExtent(text);
+	framesize = dc->GetTextExtent(text);
 	textw = framesize.x;
 	texth = framesize.y;
 	textx = rectx - textw - 4;
 	texty = recty - texth/2;
-	dc.DrawText(text, round(textx), round(texty));
+	dc->DrawText(text, round(textx), round(texty));
 	text = wxString::Format(wxT("0x%08x"), settings_memstart+settings_memsize);
-	framesize = dc.GetTextExtent(text);
+	framesize = dc->GetTextExtent(text);
 	textw = framesize.x;
 	texth = framesize.y;
 	textx = rectx - textw - 4;
 	texty = recty+recth - texth/2;
-	dc.SetFont(*wxNORMAL_FONT);
-	dc.DrawText(text, round(textx), round(texty));
+	dc->SetFont(*wxNORMAL_FONT);
+	dc->DrawText(text, round(textx), round(texty));
 
 	// Draw each item into the memory map
 	for (it = this->list_Items.begin(); it != this->list_Items.end(); ++it)
@@ -434,19 +457,19 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 		elemh = recth*(((float)elem->GetMemLength())/rectlen);
 
 		// Draw the rectangle
-		dc.SetPen(*wxBLACK_PEN);
-		dc.SetBrush(elem->GetBackColor());
-		dc.DrawRectangle(round(elemx), round(elemy), round(elemw), round(elemh));
+		dc->SetPen(*wxBLACK_PEN);
+		dc->SetBrush(elem->GetBackColor());
+		dc->DrawRectangle(round(elemx), round(elemy), round(elemw), round(elemh));
 
 		// Draw the item name
-		dc.SetPen(elem->GetFontColor());
+		dc->SetPen(elem->GetFontColor());
 		text = elem->GetName();
-		framesize = dc.GetTextExtent(text);
+		framesize = dc->GetTextExtent(text);
 		textw = framesize.x;
 		texth = framesize.y;
 		textx = elemx + elemw/2 - textw/2;
 		texty = elemy + elemh/2 - texth/2;
-		dc.DrawText(text, round(textx), round(texty));
+		dc->DrawText(text, round(textx), round(texty));
 	}
 
 	// Handle memory segments
@@ -456,24 +479,24 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 		int segmentsize = settings_memsize/settings_memsegments;
 
 		// Set the pen to black
-		dc.SetPen(*wxBLACK_PEN);
-		dc.SetBrush(*wxTRANSPARENT_BRUSH);
-		dc.SetFont(*wxNORMAL_FONT);
+		dc->SetPen(*wxBLACK_PEN);
+		dc->SetBrush(*wxTRANSPARENT_BRUSH);
+		dc->SetFont(*wxNORMAL_FONT);
 
 		// Draw the segment line and text
 		for (int i=1; i<settings_memsegments; i++)
 		{
 			int segmenty = recty+i*segmentdis;
-			dc.DrawLine(rectx, segmenty, rectx+rectw, segmenty);
+			dc->DrawLine(rectx, segmenty, rectx+rectw, segmenty);
 
 			// Draw the memory label
 			text = wxString::Format(wxT("0x%08x"), settings_memstart+segmentsize*i);
-			framesize = dc.GetTextExtent(text);
+			framesize = dc->GetTextExtent(text);
 			textw = framesize.x;
 			texth = framesize.y;
 			textx = rectx - textw - 4;
 			texty = segmenty - texth/2;
-			dc.DrawText(text, round(textx), round(texty));
+			dc->DrawText(text, round(textx), round(texty));
 		}
 	}
 }

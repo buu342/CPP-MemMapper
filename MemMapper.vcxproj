@@ -38,6 +38,7 @@
     <Image Include="resources\delete.png" />
     <Image Include="resources\down.png" />
     <Image Include="resources\down_disabled.png" />
+    <Image Include="resources\export.png" />
     <Image Include="resources\fill.png" />
     <Image Include="resources\font.png" />
     <Image Include="resources\new.png" />

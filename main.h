@@ -30,6 +30,7 @@ typedef struct IUnknown IUnknown;
 #include <wx/msgdlg.h>
 #include <wx/dcbuffer.h>
 #include <wx/filedlg.h>
+#include <wx/rawbmp.h>
 
 class Main : public wxFrame
 {
@@ -61,6 +62,7 @@ class Main : public wxFrame
 		wxToolBarToolBase* m_ToolBarElem_New;
 		wxToolBarToolBase* m_ToolBarElem_Open;
 		wxToolBarToolBase* m_ToolBarElem_Save;
+		wxToolBarToolBase* m_ToolBarElem_Export;
 		wxToolBarToolBase* m_ToolBarElem_NewItem;
 		wxToolBarToolBase* m_ToolBarElem_Preferences;
 		wxToolBarToolBase* m_ToolBarElem_Undo;
@@ -70,6 +72,7 @@ class Main : public wxFrame
 		void m_ToolBarElem_NewOnToolClicked(wxCommandEvent& event);
 		void m_ToolBarElem_OpenOnToolClicked(wxCommandEvent& event);
 		void m_ToolBarElem_SaveOnToolClicked(wxCommandEvent& event);
+		void m_ToolBarElem_ExportOnToolClicked(wxCommandEvent& event);
 		void m_ToolBarElem_NewItemOnToolClicked(wxCommandEvent& event);
 		void m_ToolBarElem_PreferencesOnToolClicked(wxCommandEvent& event);
 		void m_ProgramSplitterOnSplitterDClick(wxSplitterEvent& event);
@@ -86,4 +89,5 @@ class Main : public wxFrame
 		void  MoveDownItem(void* item);
 		void  RemoveItem(void* item);
 		void  RefreshDrawing();
+		void  Paint(wxDC* dc, wxSize framesize);
 };

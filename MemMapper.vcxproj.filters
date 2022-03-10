@@ -97,5 +97,8 @@
     <Image Include="resources\preferences.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\export.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
