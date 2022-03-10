@@ -189,6 +189,36 @@ void Item::SetDownButtonState(bool enabled)
 	this->m_ItemElem_ButtonDown->Enable(enabled);
 }
 
+void Item::SetName(wxString name)
+{
+	this->m_ItemElem_InputName->SetValue(name);
+}
+
+void Item::SetMemStart(int start)
+{
+	this->m_ItemElem_SpinStart->SetValue(start);
+}
+
+void Item::SetMemLength(int length)
+{
+	this->m_ItemElem_SpinLength->SetValue(length);
+}
+
+void Item::SetMemEnd(int end)
+{
+	this->m_ItemElem_SpinLength->SetValue(this->m_ItemElem_SpinStart->GetValue() - end);
+}
+
+void Item::SetBackColor(wxColor clr)
+{
+	this->col_back = clr;
+}
+
+void Item::SetFontColor(wxColor clr)
+{
+	this->col_text = clr;
+}
+
 wxString Item::GetName()
 {
 	return this->m_ItemElem_InputName->GetValue();

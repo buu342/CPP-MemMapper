@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # wxFormBuilder files
 *.fbp
+
+# Memory map files
+*.json

@@ -1,5 +1,9 @@
 #pragma once
 
+#define DEFAULTSETTING_MEMSTART    0x00000000
+#define DEFAULTSETTING_MEMSIZE     0x00400000
+#define DEFAULTSETTING_MEMSEGMENTS 1
+
 extern int settings_memstart;
 extern int settings_memsize;
 extern int settings_memsegments;

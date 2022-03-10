@@ -24,7 +24,7 @@
 class Item : public wxPanel
 {
 	private:
-		Main* instance;
+		Main*   instance;
 		int     col_alpha;
 		wxColor col_back;
 		wxColor col_text;
@@ -58,6 +58,12 @@ class Item : public wxPanel
 		void SetInstance(Main* instance);
 		void SetUpButtonState(bool enabled);
 		void SetDownButtonState(bool enabled);
+		void SetName(wxString name);
+		void SetMemStart(int start);
+		void SetMemLength(int length);
+		void SetMemEnd(int end);
+		void SetBackColor(wxColor clr);
+		void SetFontColor(wxColor clr);
 		wxString GetName();
 		int GetMemStart();
 		int GetMemLength();

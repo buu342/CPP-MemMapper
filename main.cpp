@@ -1,9 +1,13 @@
 #include <string.h>
+#include <fstream>
 #include "main.h"
 #include "item.h"
 #include "settings.h"
+#include "json.hpp"
 
 #define DEFAULT_SASH_POS 346
+
+std::string savePath = "";
 
 Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
 {
@@ -51,7 +55,7 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->m_ToolBar->AddSeparator();
 	this->m_ToolBarElem_NewItem = this->m_ToolBar->AddTool(wxID_ANY, wxT("New item"), wxBitmap(wxT("resources/newmem.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
-	this->m_ToolBarElem_Preferences = this->m_ToolBar->AddTool(wxID_ANY, wxT("New item"), wxBitmap(wxT("resources/preferences.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
+	this->m_ToolBarElem_Preferences = this->m_ToolBar->AddTool(wxID_ANY, wxT("Preferences"), wxBitmap(wxT("resources/preferences.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Change memory map preferences"), wxEmptyString, NULL);
 	this->m_ToolBar->Realize();
 
 	// Put the program in the middle of the screen
@@ -60,6 +64,9 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	// Add event handlers
 	this->m_ProgramSplitter->Connect(wxEVT_COMMAND_SPLITTER_DOUBLECLICKED, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterDClick));
 	this->m_ProgramSplitter->Connect(wxEVT_COMMAND_SPLITTER_UNSPLIT, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterUnsplit), NULL, this);
+	this->Connect(this->m_ToolBarElem_New->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked));
+	this->Connect(this->m_ToolBarElem_Open->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked));
+	this->Connect(this->m_ToolBarElem_Save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked));
 	this->Connect(this->m_ToolBarElem_NewItem->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked));
 	this->Connect(this->m_ToolBarElem_Preferences->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_PreferencesOnToolClicked));
 	this->m_DrawPanel->Connect(wxEVT_PAINT, wxPaintEventHandler(Main::m_DrawPanelOnPaint), NULL, this);
@@ -67,9 +74,39 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 
 Main::~Main()
 {
-	this->Disconnect(this->m_ToolBarElem_NewItem->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked));
-	this->m_ProgramSplitter->Disconnect(wxEVT_COMMAND_SPLITTER_DOUBLECLICKED, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterDClick), NULL, this);
+	this->m_ProgramSplitter->Disconnect(wxEVT_COMMAND_SPLITTER_DOUBLECLICKED, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterDClick));
 	this->m_ProgramSplitter->Disconnect(wxEVT_COMMAND_SPLITTER_UNSPLIT, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterUnsplit), NULL, this);
+	this->Disconnect(this->m_ToolBarElem_New->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked));
+	this->Disconnect(this->m_ToolBarElem_Open->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked));
+	this->Disconnect(this->m_ToolBarElem_Save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked));
+	this->Disconnect(this->m_ToolBarElem_NewItem->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked));
+	this->Disconnect(this->m_ToolBarElem_Preferences->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_PreferencesOnToolClicked));
+	this->m_DrawPanel->Disconnect(wxEVT_PAINT, wxPaintEventHandler(Main::m_DrawPanelOnPaint), NULL, this);
+}
+
+void Main::ResetProgram()
+{
+	this->m_ProgramSplitter->SetSashPosition(DEFAULT_SASH_POS);
+
+	// Set the program to defaults
+	settings_memstart    = DEFAULTSETTING_MEMSTART;
+	settings_memsize     = DEFAULTSETTING_MEMSIZE;
+	settings_memsegments = DEFAULTSETTING_MEMSEGMENTS;
+
+	// Remove all the items
+	while (this->list_Items.size() > 0)
+	{
+		Item* it = (Item*)*this->list_Items.begin();
+		this->RemoveItem(it);
+		delete it;
+	}
+
+	// Refresh the layout
+	this->m_ItemsSizer->Layout();
+	this->RefreshDrawing();
+
+	// Reset the save path
+	savePath = "";
 }
 
 void Main::m_ProgramSplitterOnIdle(wxIdleEvent& event)
@@ -80,21 +117,120 @@ void Main::m_ProgramSplitterOnIdle(wxIdleEvent& event)
 
 void Main::m_ToolBarElem_NewItemOnToolClicked(wxCommandEvent& event)
 {
-	Item* it = new Item(this->m_ItemsScrollList);
-	it->SetInstance(this);
-	this->list_Items.push_back(it);
-	this->m_ItemsSizer->Add(it, 1, wxALL|wxEXPAND, 5);
-
-	// Refresh the sizers and the buttons
-	this->m_ItemsSizer->FitInside(this->m_ItemsScrollList);
-	this->m_ItemsScrollList->Layout();
-	this->FixItemMoverButtons();
+	this->NewItem();
 }
 
 void Main::m_ToolBarElem_PreferencesOnToolClicked(wxCommandEvent& event)
 {
 	Settings* elem = new Settings(this);
 	elem->Show();
+}
+
+void Main::m_ToolBarElem_NewOnToolClicked(wxCommandEvent& event)
+{
+	wxMessageDialog dialog(this, "Unsaved changes will be lost. Continue?", "New Project", wxCENTER | wxNO_DEFAULT | wxYES_NO | wxICON_WARNING);
+
+	// Do stuff based on the dialog answer
+	switch (dialog.ShowModal())
+	{
+		case wxID_YES:
+			this->ResetProgram();
+			break;
+		case wxID_NO:
+			break;
+	}
+}
+
+void Main::m_ToolBarElem_OpenOnToolClicked(wxCommandEvent& event)
+{
+	nlohmann::json file;
+	wxMessageDialog dialog(this, "Unsaved changes will be lost. Continue?", "Load Project", wxCENTER | wxNO_DEFAULT | wxYES_NO | wxICON_WARNING);
+	wxFileDialog fileDialogue(this, _("Load Memory Map"), "", "", "JSON files (*.json)|*.json", wxFD_OPEN);
+
+	// If the user pressed "Yes"
+	if (dialog.ShowModal() == wxID_YES)
+	{
+		// Ensure we didn't cancel the file opening dialog
+		if (fileDialogue.ShowModal() == wxID_CANCEL)
+			return;
+
+		// We're good to reset the program
+		this->ResetProgram();
+
+		// Open the json file
+		savePath = std::string(fileDialogue.GetPath().ToStdString());
+		file = nlohmann::json::parse(std::ifstream(savePath));
+		settings_memstart = file["Settings"]["Mem Start"];
+		settings_memsize = file["Settings"]["Mem Length"];
+		settings_memsegments = file["Settings"]["Mem Segments"];
+		for (auto it = file["Items"].begin(); it != file["Items"].end(); ++it)
+		{
+			Item* elem = (Item*)this->NewItem();
+			elem->SetName((*it)["Name"]);
+			elem->SetMemStart((*it)["Start"]);
+			elem->SetMemLength((*it)["Length"]);
+			elem->SetBackColor(wxColor((*it)["Color"][0], (*it)["Color"][1], (*it)["Color"][1]));
+			elem->SetFontColor(wxColor((*it)["TextColor"][0], (*it)["TextColor"][1], (*it)["TextColor"][1]));
+		}
+		this->RefreshDrawing();
+	}
+}
+
+void Main::m_ToolBarElem_SaveOnToolClicked(wxCommandEvent& event)
+{
+	nlohmann::json appdata = 
+	{
+		{
+			"Settings", 
+			{
+				{"Mem Start", settings_memstart},
+				{"Mem Length", settings_memsize},
+				{"Mem Segments", settings_memsegments}
+			}
+		}, 
+		{
+			"Items", 
+			{
+				// Starts empty
+			}
+		}
+	};
+
+	// Add each item to the JSON file
+	if (this->list_Items.size() > 0)
+	{
+		int itemcount = 0;
+		std::list<void*>::iterator it;
+		for (it = this->list_Items.begin(); it != this->list_Items.end(); ++it)
+		{
+			Item* elem = (Item*)*it;
+			appdata["Items"][itemcount++] = {
+				{"Name", elem->GetName()},
+				{"Start", elem->GetMemStart()},
+				{"Length", elem->GetMemLength()},
+				{"Color", {elem->GetBackColor().Red(), elem->GetBackColor().Green(), elem->GetBackColor().Blue()}},
+				{"TextColor", {elem->GetFontColor().Red(), elem->GetFontColor().Green(), elem->GetFontColor().Blue()}},
+			};
+		}
+	}
+
+	// Open the file save dialogue
+	if (savePath.empty())
+	{
+		wxFileDialog fileDialogue(this, _("Save Memory Map"), "", "", "JSON files (*.json)|*.json", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+
+		// Ensure the user didn't cancel
+		if (fileDialogue.ShowModal() == wxID_CANCEL)
+			return;
+
+		// Write it to a file
+		savePath = std::string(fileDialogue.GetPath().ToStdString());
+	}
+
+	// Save the file
+	std::ofstream file(savePath);
+	file << appdata;
+	file.close();
 }
 
 void Main::m_ProgramSplitterOnSplitterDClick(wxSplitterEvent& event)
@@ -105,6 +241,20 @@ void Main::m_ProgramSplitterOnSplitterDClick(wxSplitterEvent& event)
 void Main::m_ProgramSplitterOnSplitterUnsplit(wxSplitterEvent& event)
 {
 	event.Veto();
+}
+
+void* Main::NewItem()
+{
+	Item* it = new Item(this->m_ItemsScrollList);
+	it->SetInstance(this);
+	this->list_Items.push_back(it);
+	this->m_ItemsSizer->Add(it, 1, wxALL|wxEXPAND, 5);
+
+	// Refresh the sizers and the buttons
+	this->m_ItemsSizer->FitInside(this->m_ItemsScrollList);
+	this->m_ItemsScrollList->Layout();
+	this->FixItemMoverButtons();
+	return it;
 }
 
 std::list<void*>* Main::GetItemList()

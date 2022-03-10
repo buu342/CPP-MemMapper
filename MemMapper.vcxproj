@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="main.h" />

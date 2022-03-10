@@ -1,9 +1,9 @@
 #include "main.h"
 #include "settings.h"
 
-int settings_memstart    = 0x00000000;
-int settings_memsize     = 0x00400000;
-int settings_memsegments = 1;
+int settings_memstart    = DEFAULTSETTING_MEMSTART;
+int settings_memsize     = DEFAULTSETTING_MEMSIZE;
+int settings_memsegments = DEFAULTSETTING_MEMSEGMENTS;
 
 Settings::Settings( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
