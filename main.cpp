@@ -35,7 +35,7 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->m_ProgramSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxSP_NO_XP_THEME);
 	this->m_ProgramSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler(Main::m_ProgramSplitterOnIdle), NULL, this);
 	this->m_ProgramSplitter->SetMinSize(wxSize(DEFAULT_SASH_POS, -1));
-	this->m_ItemsScrollList = new wxScrolledWindow(this->m_ProgramSplitter, wxID_ANY, wxDefaultPosition, wxSize(DEFAULT_SASH_POS, -1), wxALWAYS_SHOW_SB|wxVSCROLL);
+	this->m_ItemsScrollList = new wxScrolledWindow(this->m_ProgramSplitter, wxID_ANY, wxDefaultPosition, wxSize(DEFAULT_SASH_POS, -1), wxVSCROLL);
 	this->m_ItemsScrollList->SetScrollRate(0, 5);
 	this->m_ItemsScrollList->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
 
@@ -150,8 +150,9 @@ void Main::m_ToolBarElem_OpenOnToolClicked(wxCommandEvent& event)
 			elem->SetName((*it)["Name"]);
 			elem->SetMemStart((*it)["Start"]);
 			elem->SetMemLength((*it)["Length"]);
-			elem->SetBackColor(wxColor((*it)["Color"][0], (*it)["Color"][1], (*it)["Color"][1]));
-			elem->SetFontColor(wxColor((*it)["TextColor"][0], (*it)["TextColor"][1], (*it)["TextColor"][1]));
+			elem->SetBackColor(wxColor((*it)["Color"][0], (*it)["Color"][1], (*it)["Color"][2]));
+			elem->SetFontColor(wxColor((*it)["TextColor"][0], (*it)["TextColor"][1], (*it)["TextColor"][2]));
+			elem->SetAlpha((*it)["Alpha"]);
 		}
 		this->RefreshDrawing();
 	}
@@ -189,8 +190,9 @@ void Main::m_ToolBarElem_SaveOnToolClicked(wxCommandEvent& event)
 				{"Name", elem->GetName()},
 				{"Start", elem->GetMemStart()},
 				{"Length", elem->GetMemLength()},
-				{"Color", {elem->GetBackColor().Red(), elem->GetBackColor().Green(), elem->GetBackColor().Blue()}},
+				{"Color", {elem->GetBackColor().Red(), elem->GetBackColor().Green(), elem->GetBackColor().Blue(), elem->GetBackColor().Blue()}},
 				{"TextColor", {elem->GetFontColor().Red(), elem->GetFontColor().Green(), elem->GetFontColor().Blue()}},
+				{"Alpha", elem->GetAlpha()},
 			};
 		}
 	}
@@ -223,10 +225,11 @@ void Main::m_ToolBarElem_ExportOnToolClicked(wxCommandEvent& event)
 		return;
 
 	// Generate the image
-	wxBitmap image(this->m_DrawPanel->GetSize(), 32);
+	wxSize imgsize(512, 1024);
+	wxBitmap image(imgsize, 32);
 	wxMemoryDC dc(image);
 	dc.SetBrush(*wxWHITE_BRUSH);
-	this->Paint(&dc, this->m_DrawPanel->GetSize());
+	this->Paint(&dc, imgsize);
 	image.ConvertToImage().SaveFile(fileDialogue.GetPath(), wxBITMAP_TYPE_PNG);
 }
 
@@ -392,6 +395,7 @@ void Main::RemoveItem(void* item)
 	// Refresh the sizers and the buttons
 	this->m_ItemsSizer->Layout();
 	this->FixItemMoverButtons();
+	this->m_ItemsScrollList->FitInside();
 }
 
 std::list<void*>* Main::GetItemList()

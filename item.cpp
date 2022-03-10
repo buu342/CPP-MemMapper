@@ -234,6 +234,12 @@ void Item::SetFontColor(wxColor clr)
 	this->col_text = clr;
 }
 
+void Item::SetAlpha(int alpha)
+{
+	this->col_alpha = col_alpha;
+	this->m_ItemElem_SliderAlpha->SetValue(col_alpha);
+}
+
 
 /*********************************
              Getters
@@ -267,4 +273,9 @@ wxColor Item::GetBackColor()
 wxColor Item::GetFontColor()
 {
 	return this->col_text;
+}
+
+int Item::GetAlpha()
+{
+	return this->col_alpha;
 }

@@ -64,10 +64,12 @@ class Item : public wxPanel
 		void SetMemEnd(int end);
 		void SetBackColor(wxColor clr);
 		void SetFontColor(wxColor clr);
+		void SetAlpha(int alpha);
 		wxString GetName();
 		int GetMemStart();
 		int GetMemLength();
 		int GetMemEnd();
 		wxColor GetBackColor();
 		wxColor GetFontColor();
+		int GetAlpha();
 };

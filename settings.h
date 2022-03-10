@@ -8,7 +8,7 @@ extern int settings_memstart;
 extern int settings_memsize;
 extern int settings_memsegments;
 
-class Settings : public wxFrame
+class Settings : public wxDialog
 {
 	private:
 
