@@ -24,7 +24,7 @@ std::string savePath = "";
            Constructors
 *********************************/
 
-Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
+Main::Main() : wxFrame(nullptr, wxID_ANY, PROGRAM_NAME, wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
 {
 	// Initialize wxWidgets
 	wxInitAllImageHandlers();
@@ -93,6 +93,18 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->m_ToolBarElem_Preferences = this->m_ToolBar->AddTool(wxID_ANY, wxT("Preferences"), wxBitmap(wxT("resources/preferences.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Change memory map preferences"), wxEmptyString, NULL);
 	this->m_ToolBar->Realize();
 
+	// Create the shortcuts
+	wxAcceleratorEntry entries[7];
+	entries[0].Set(wxACCEL_CTRL, WXK_CONTROL_N, this->m_MenuBarItem_New->GetId());
+	entries[1].Set(wxACCEL_CTRL, WXK_CONTROL_O, this->m_MenuBarItem_Open->GetId());
+	entries[2].Set(wxACCEL_CTRL, WXK_CONTROL_S, this->m_MenuBarItem_Save->GetId());
+	entries[3].Set(wxACCEL_CTRL|wxACCEL_SHIFT, WXK_CONTROL_S, this->m_MenuBarItem_SaveAs->GetId());
+	entries[4].Set(wxACCEL_CTRL, WXK_CONTROL_E, this->m_MenuBarItem_Export->GetId());
+	entries[5].Set(wxACCEL_CTRL, WXK_CONTROL_M, this->m_MenuBarItem_NewItem->GetId());
+	entries[6].Set(wxACCEL_CTRL, WXK_CONTROL_P, this->m_MenuBarItem_Preferences->GetId());
+	wxAcceleratorTable accel(7, entries);
+	this->SetAcceleratorTable(accel);
+
 	// Put the program in the middle of the screen
 	this->Centre(wxBOTH);
 
@@ -157,6 +169,7 @@ void Main::m_ToolBarElem_NewOnToolClicked(wxCommandEvent& event)
 
 void Main::m_ToolBarElem_OpenOnToolClicked(wxCommandEvent& event)
 {
+	std::string progname;
 	nlohmann::json file;
 	wxMessageDialog dialog(this, "Unsaved changes will be lost. Continue?", "Load Project", wxCENTER | wxNO_DEFAULT | wxYES_NO | wxICON_WARNING);
 	wxFileDialog fileDialogue(this, _("Load Memory Map"), "", "", "JSON files (*.json)|*.json", wxFD_OPEN);
@@ -188,6 +201,12 @@ void Main::m_ToolBarElem_OpenOnToolClicked(wxCommandEvent& event)
 			elem->SetAlpha((*it)["Alpha"]);
 		}
 		this->RefreshDrawing();
+
+		// Update our program title
+		progname = PROGRAM_NAME;
+		progname.append(" - ");
+		progname.append(savePath.substr(savePath.find_last_of("/\\") + 1));
+		this->SetTitle(progname);
 	}
 }
 
@@ -259,6 +278,7 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 
 void Main::ResetProgram()
 {
+	this->SetTitle(PROGRAM_NAME);
 	this->m_ProgramSplitter->SetSashPosition(DEFAULT_SASH_POS);
 
 	// Set the program to defaults
@@ -415,6 +435,7 @@ void Main::FixItemMoverButtons()
 
 void Main::SaveFile(bool newfile)
 {
+	std::string progname;
 	nlohmann::json appdata = 
 	{
 		{
@@ -469,6 +490,12 @@ void Main::SaveFile(bool newfile)
 	std::ofstream file(savePath);
 	file << appdata;
 	file.close();
+
+	// Update our program title
+	progname = PROGRAM_NAME;
+	progname.append(" - ");
+	progname.append(savePath.substr(savePath.find_last_of("/\\") + 1));
+	this->SetTitle(progname);
 }
 
 void Main::RefreshDrawing()

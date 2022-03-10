@@ -32,6 +32,8 @@ typedef struct IUnknown IUnknown;
 #include <wx/filedlg.h>
 #include <wx/rawbmp.h>
 
+#define PROGRAM_NAME "MemMapper"
+
 class Main : public wxFrame
 {
 	private:
