@@ -33,8 +33,6 @@ typedef struct IUnknown IUnknown;
 class Main : public wxFrame
 {
 	private:
-		int mem_start;
-		int mem_end;
 		std::list<void*> list_Items;
 		void FixItemMoverButtons();
 
@@ -63,11 +61,13 @@ class Main : public wxFrame
 		wxToolBarToolBase* m_ToolBarElem_Open;
 		wxToolBarToolBase* m_ToolBarElem_Save;
 		wxToolBarToolBase* m_ToolBarElem_NewItem;
+		wxToolBarToolBase* m_ToolBarElem_Preferences;
 		wxToolBarToolBase* m_ToolBarElem_Undo;
 		wxToolBarToolBase* m_ToolBarElem_Redo;
 		wxBoxSizer* m_ItemsSizer;
 		void m_ProgramSplitterOnIdle(wxIdleEvent&);
 		void m_ToolBarElem_NewItemOnToolClicked(wxCommandEvent& event);
+		void m_ToolBarElem_PreferencesOnToolClicked(wxCommandEvent& event);
 		void m_ProgramSplitterOnSplitterDClick(wxSplitterEvent& event);
 		void m_ProgramSplitterOnSplitterUnsplit(wxSplitterEvent& event);
 		void m_DrawPanelOnPaint(wxPaintEvent& event);

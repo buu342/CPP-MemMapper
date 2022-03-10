@@ -24,6 +24,9 @@
     <ClInclude Include="item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,6 +89,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\up_disabled.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\preferences.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

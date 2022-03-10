@@ -1,11 +1,9 @@
 #include <string.h>
 #include "main.h"
 #include "item.h"
+#include "settings.h"
 
-#define DEFAULT_SASH_POS 300
-
-#define DEFAULT_MEMSTART 0x00000000
-#define DEFAULT_MEMEND   0x00400000
+#define DEFAULT_SASH_POS 346
 
 Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
 {
@@ -13,15 +11,11 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	wxInitAllImageHandlers();
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
-	// Initialize private variables
-	mem_start = DEFAULT_MEMSTART;
-	mem_end   = DEFAULT_MEMEND;
-
 	// Add the window splitter with a scroll bar
 	wxBoxSizer*m_ProgramSizer = new wxBoxSizer(wxVERTICAL);
 	this->m_ProgramSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxSP_NO_XP_THEME);
 	this->m_ProgramSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler(Main::m_ProgramSplitterOnIdle), NULL, this);
-	this->m_ProgramSplitter->SetMinSize(wxSize(DEFAULT_SASH_POS,-1));
+	this->m_ProgramSplitter->SetMinSize(wxSize(DEFAULT_SASH_POS, -1));
 	this->m_ItemsScrollList = new wxScrolledWindow(this->m_ProgramSplitter, wxID_ANY, wxDefaultPosition, wxSize(DEFAULT_SASH_POS, -1), wxALWAYS_SHOW_SB|wxVSCROLL);
 	this->m_ItemsScrollList->SetScrollRate(0, 5);
 	this->m_ItemsScrollList->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
@@ -56,6 +50,8 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->m_ToolBarElem_Save = this->m_ToolBar->AddTool(wxID_ANY, wxT("Save project"), wxBitmap(wxT("resources/save.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Save this project"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
 	this->m_ToolBarElem_NewItem = this->m_ToolBar->AddTool(wxID_ANY, wxT("New item"), wxBitmap(wxT("resources/newmem.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
+	this->m_ToolBar->AddSeparator();
+	this->m_ToolBarElem_Preferences = this->m_ToolBar->AddTool(wxID_ANY, wxT("New item"), wxBitmap(wxT("resources/preferences.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
 	this->m_ToolBar->Realize();
 
 	// Put the program in the middle of the screen
@@ -65,6 +61,7 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->m_ProgramSplitter->Connect(wxEVT_COMMAND_SPLITTER_DOUBLECLICKED, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterDClick));
 	this->m_ProgramSplitter->Connect(wxEVT_COMMAND_SPLITTER_UNSPLIT, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterUnsplit), NULL, this);
 	this->Connect(this->m_ToolBarElem_NewItem->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked));
+	this->Connect(this->m_ToolBarElem_Preferences->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_PreferencesOnToolClicked));
 	this->m_DrawPanel->Connect(wxEVT_PAINT, wxPaintEventHandler(Main::m_DrawPanelOnPaint), NULL, this);
 }
 
@@ -92,6 +89,12 @@ void Main::m_ToolBarElem_NewItemOnToolClicked(wxCommandEvent& event)
 	this->m_ItemsSizer->FitInside(this->m_ItemsScrollList);
 	this->m_ItemsScrollList->Layout();
 	this->FixItemMoverButtons();
+}
+
+void Main::m_ToolBarElem_PreferencesOnToolClicked(wxCommandEvent& event)
+{
+	Settings* elem = new Settings(this);
+	elem->Show();
 }
 
 void Main::m_ProgramSplitterOnSplitterDClick(wxSplitterEvent& event)
@@ -251,14 +254,14 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 
 	// Draw the start and end of the memory map
 	dc.SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
-	text = wxString::Format(wxT("0x%08x"), mem_start);
+	text = wxString::Format(wxT("0x%08x"), settings_memstart);
 	framesize = dc.GetTextExtent(text);
 	textw = framesize.x;
 	texth = framesize.y;
 	textx = rectx - textw - 4;
 	texty = recty - texth/2;
 	dc.DrawText(text, round(textx), round(texty));
-	text = wxString::Format(wxT("0x%08x"), mem_end);
+	text = wxString::Format(wxT("0x%08x"), settings_memstart+settings_memsize);
 	framesize = dc.GetTextExtent(text);
 	textw = framesize.x;
 	texth = framesize.y;
@@ -270,7 +273,7 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 	// Draw each item into the memory map
 	for (it = this->list_Items.begin(); it != this->list_Items.end(); ++it)
 	{
-		float rectlen = mem_end - mem_start;
+		float rectlen = settings_memsize;
 		float elemx, elemy, elemw, elemh;
 		Item* elem = (Item*)*it;
 
@@ -294,5 +297,33 @@ void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
 		textx = elemx + elemw/2 - textw/2;
 		texty = elemy + elemh/2 - texth/2;
 		dc.DrawText(text, round(textx), round(texty));
+	}
+
+	// Handle memory segments
+	if (settings_memsegments > 1)
+	{
+		int segmentdis = recth/settings_memsegments;
+		int segmentsize = settings_memsize/settings_memsegments;
+
+		// Set the pen to black
+		dc.SetPen(*wxBLACK_PEN);
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		dc.SetFont(*wxNORMAL_FONT);
+
+		// Draw the segment line and text
+		for (int i=1; i<settings_memsegments; i++)
+		{
+			int segmenty = recty+i*segmentdis;
+			dc.DrawLine(rectx, segmenty, rectx+rectw, segmenty);
+
+			// Draw the memory label
+			text = wxString::Format(wxT("0x%08x"), settings_memstart+segmentsize*i);
+			framesize = dc.GetTextExtent(text);
+			textw = framesize.x;
+			texth = framesize.y;
+			textx = rectx - textw - 4;
+			texty = segmenty - texth/2;
+			dc.DrawText(text, round(textx), round(texty));
+		}
 	}
 }
