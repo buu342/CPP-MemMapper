@@ -1,9 +1,19 @@
 #include "main.h"
 #include "settings.h"
 
+
+/*********************************
+             Globals
+*********************************/
+
 int settings_memstart    = DEFAULTSETTING_MEMSTART;
 int settings_memsize     = DEFAULTSETTING_MEMSIZE;
 int settings_memsegments = DEFAULTSETTING_MEMSEGMENTS;
+
+
+/*********************************
+           Constructors
+*********************************/
 
 Settings::Settings( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
@@ -60,6 +70,11 @@ Settings::~Settings()
 	this->m_SettingsElem_SpinMemSegments->Disconnect(wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler(Settings::m_SettingsElem_SpinMemSegmentsOnSpinCtrl), NULL, this);
 	this->m_SettingsElem_SpinMemSegments->Disconnect(wxEVT_COMMAND_TEXT_UPDATED, wxSpinEventHandler(Settings::m_SettingsElem_SpinMemSegmentsOnSpinCtrl), NULL, this);
 }
+
+
+/*********************************
+          Event Handling
+*********************************/
 
 void Settings::m_SettingsElem_SpinMemSizeOnSpinCtrl(wxSpinEvent& event)
 {

@@ -5,9 +5,24 @@
 #include "settings.h"
 #include "json.hpp"
 
+
+/*********************************
+              Macros
+*********************************/
+
 #define DEFAULT_SASH_POS 346
 
+
+/*********************************
+             Globals
+*********************************/
+
 std::string savePath = "";
+
+
+/*********************************
+           Constructors
+*********************************/
 
 Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
 {
@@ -87,47 +102,10 @@ Main::~Main()
 	this->m_DrawPanel->Disconnect(wxEVT_PAINT, wxPaintEventHandler(Main::m_DrawPanelOnPaint), NULL, this);
 }
 
-void Main::ResetProgram()
-{
-	this->m_ProgramSplitter->SetSashPosition(DEFAULT_SASH_POS);
 
-	// Set the program to defaults
-	settings_memstart    = DEFAULTSETTING_MEMSTART;
-	settings_memsize     = DEFAULTSETTING_MEMSIZE;
-	settings_memsegments = DEFAULTSETTING_MEMSEGMENTS;
-
-	// Remove all the items
-	while (this->list_Items.size() > 0)
-	{
-		Item* it = (Item*)*this->list_Items.begin();
-		this->RemoveItem(it);
-		delete it;
-	}
-
-	// Refresh the layout
-	this->m_ItemsSizer->Layout();
-	this->RefreshDrawing();
-
-	// Reset the save path
-	savePath = "";
-}
-
-void Main::m_ProgramSplitterOnIdle(wxIdleEvent& event)
-{
-	this->m_ProgramSplitter->SetSashPosition(DEFAULT_SASH_POS);
-	this->m_ProgramSplitter->Disconnect(wxEVT_IDLE, wxIdleEventHandler(Main::m_ProgramSplitterOnIdle), NULL, this);
-}
-
-void Main::m_ToolBarElem_NewItemOnToolClicked(wxCommandEvent& event)
-{
-	this->NewItem();
-}
-
-void Main::m_ToolBarElem_PreferencesOnToolClicked(wxCommandEvent& event)
-{
-	Settings* elem = new Settings(this);
-	elem->Show();
-}
+/*********************************
+          Event Handling
+*********************************/
 
 void Main::m_ToolBarElem_NewOnToolClicked(wxCommandEvent& event)
 {
@@ -236,16 +214,6 @@ void Main::m_ToolBarElem_SaveOnToolClicked(wxCommandEvent& event)
 	file.close();
 }
 
-void Main::m_ProgramSplitterOnSplitterDClick(wxSplitterEvent& event)
-{
-	event.Veto();
-}
-
-void Main::m_ProgramSplitterOnSplitterUnsplit(wxSplitterEvent& event)
-{
-	event.Veto();
-}
-
 void Main::m_ToolBarElem_ExportOnToolClicked(wxCommandEvent& event)
 {
 	wxFileDialog fileDialogue(this, _("Export Memory Map"), "", "", "PNG image (*.png)|*.png", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
@@ -262,6 +230,70 @@ void Main::m_ToolBarElem_ExportOnToolClicked(wxCommandEvent& event)
 	image.ConvertToImage().SaveFile(fileDialogue.GetPath(), wxBITMAP_TYPE_PNG);
 }
 
+void Main::m_ToolBarElem_NewItemOnToolClicked(wxCommandEvent& event)
+{
+	this->NewItem();
+}
+
+void Main::m_ToolBarElem_PreferencesOnToolClicked(wxCommandEvent& event)
+{
+	Settings* elem = new Settings(this);
+	elem->Show();
+}
+
+void Main::m_ProgramSplitterOnIdle(wxIdleEvent& event)
+{
+	this->m_ProgramSplitter->SetSashPosition(DEFAULT_SASH_POS);
+	this->m_ProgramSplitter->Disconnect(wxEVT_IDLE, wxIdleEventHandler(Main::m_ProgramSplitterOnIdle), NULL, this);
+}
+
+void Main::m_ProgramSplitterOnSplitterDClick(wxSplitterEvent& event)
+{
+	event.Veto();
+}
+
+void Main::m_ProgramSplitterOnSplitterUnsplit(wxSplitterEvent& event)
+{
+	event.Veto();
+}
+
+void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
+{
+	wxBufferedPaintDC dc(this->m_DrawPanel);
+	dc.SetBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_APPWORKSPACE));
+	this->Paint(&dc, this->m_DrawPanel->GetSize());
+}
+
+
+/*********************************
+         Helper Functions
+*********************************/
+
+void Main::ResetProgram()
+{
+	this->m_ProgramSplitter->SetSashPosition(DEFAULT_SASH_POS);
+
+	// Set the program to defaults
+	settings_memstart    = DEFAULTSETTING_MEMSTART;
+	settings_memsize     = DEFAULTSETTING_MEMSIZE;
+	settings_memsegments = DEFAULTSETTING_MEMSEGMENTS;
+
+	// Remove all the items
+	while (this->list_Items.size() > 0)
+	{
+		Item* it = (Item*)*this->list_Items.begin();
+		this->RemoveItem(it);
+		delete it;
+	}
+
+	// Refresh the layout
+	this->m_ItemsSizer->Layout();
+	this->RefreshDrawing();
+
+	// Reset the save path
+	savePath = "";
+}
+
 void* Main::NewItem()
 {
 	Item* it = new Item(this->m_ItemsScrollList);
@@ -274,11 +306,6 @@ void* Main::NewItem()
 	this->m_ItemsScrollList->Layout();
 	this->FixItemMoverButtons();
 	return it;
-}
-
-std::list<void*>* Main::GetItemList()
-{
-	return &this->list_Items;
 }
 
 void Main::MoveUpItem(void* item)
@@ -367,6 +394,11 @@ void Main::RemoveItem(void* item)
 	this->FixItemMoverButtons();
 }
 
+std::list<void*>* Main::GetItemList()
+{
+	return &this->list_Items;
+}
+
 void Main::FixItemMoverButtons()
 {
 	Item* first = (Item*)list_Items.front();
@@ -395,13 +427,6 @@ void Main::FixItemMoverButtons()
 void Main::RefreshDrawing()
 {
 	this->m_DrawPanel->Refresh();
-}
-
-void Main::m_DrawPanelOnPaint(wxPaintEvent& event)
-{
-	wxBufferedPaintDC dc(this->m_DrawPanel);
-	dc.SetBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_APPWORKSPACE));
-	this->Paint(&dc, this->m_DrawPanel->GetSize());
 }
 
 void Main::Paint(wxDC* dc, wxSize framesize)

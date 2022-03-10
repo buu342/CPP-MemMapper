@@ -1,6 +1,11 @@
 #include "main.h"
 #include "item.h"
 
+
+/*********************************
+           Constructors
+*********************************/
+
 Item::Item(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name) : wxPanel(parent, id, pos, size, style, name)
 {
 	// Initialize private variables
@@ -125,10 +130,10 @@ Item::~Item()
 	this->m_ItemElem_SpinLength->Disconnect(wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler(Item::m_ItemElem_SpinLengthOnSpinCtrl), NULL, this);
 }
 
-void Item::SetInstance(Main* instance)
-{
-	this->instance = instance;
-}
+
+/*********************************
+          Event Handling
+*********************************/
 
 void Item::m_ItemElem_ButtonUpOnButtonClick(wxCommandEvent& event)
 {
@@ -179,6 +184,16 @@ void Item::m_ItemElem_SpinLengthOnSpinCtrl(wxSpinEvent& event)
 	this->instance->RefreshDrawing();
 }
 
+
+/*********************************
+             Setters
+*********************************/
+
+void Item::SetInstance(Main* instance)
+{
+	this->instance = instance;
+}
+
 void Item::SetUpButtonState(bool enabled)
 {
 	this->m_ItemElem_ButtonUp->Enable(enabled);
@@ -218,6 +233,11 @@ void Item::SetFontColor(wxColor clr)
 {
 	this->col_text = clr;
 }
+
+
+/*********************************
+             Getters
+*********************************/
 
 wxString Item::GetName()
 {
