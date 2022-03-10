@@ -59,7 +59,26 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	// Add the menu bar
 	this->m_MenuBar = new wxMenuBar(0);
 	this->m_MenuBarElem_File = new wxMenu();
+	this->m_MenuBar = new wxMenuBar(0);
+	this->m_MenuBarElem_File = new wxMenu();
+	this->m_MenuBarItem_New = new wxMenuItem(m_MenuBarElem_File, wxID_ANY, wxString(wxT("New")) + wxT('\t') + wxT("Ctrl+N"), wxEmptyString, wxITEM_NORMAL);
+	this->m_MenuBarElem_File->Append(m_MenuBarItem_New);
+	this->m_MenuBarItem_Open = new wxMenuItem(m_MenuBarElem_File, wxID_ANY, wxString(wxT("Open")) + wxT('\t') + wxT("Ctrl+O"), wxEmptyString, wxITEM_NORMAL);
+	this->m_MenuBarElem_File->Append(m_MenuBarItem_Open);
+	this->m_MenuBarItem_Save = new wxMenuItem(m_MenuBarElem_File, wxID_ANY, wxString(wxT("Save")) + wxT('\t') + wxT("Ctrl+S"), wxEmptyString, wxITEM_NORMAL);
+	this->m_MenuBarElem_File->Append(m_MenuBarItem_Save);
+	this->m_MenuBarItem_SaveAs = new wxMenuItem(m_MenuBarElem_File, wxID_ANY, wxString(wxT("Save As")) + wxT('\t') + wxT("Ctrl+Shift+S"), wxEmptyString, wxITEM_NORMAL);
+	this->m_MenuBarElem_File->Append(m_MenuBarItem_SaveAs);
+	this->m_MenuBarElem_File->AppendSeparator();
+	this->m_MenuBarItem_Export = new wxMenuItem(m_MenuBarElem_File, wxID_ANY, wxString(wxT("Export Image")) + wxT('\t') + wxT("Ctrl+E"), wxEmptyString, wxITEM_NORMAL);
+	this->m_MenuBarElem_File->Append(m_MenuBarItem_Export);
 	this->m_MenuBar->Append(this->m_MenuBarElem_File, wxT("File"));
+	this->m_MenuBarElem_Memory = new wxMenu();
+	this->m_MenuBarItem_NewItem = new wxMenuItem(m_MenuBarElem_Memory, wxID_ANY, wxString(wxT("New Memory Block")) + wxT('\t') + wxT("Ctrl+M"), wxEmptyString, wxITEM_NORMAL);
+	this->m_MenuBarElem_Memory->Append(m_MenuBarItem_NewItem);
+	this->m_MenuBarItem_Preferences = new wxMenuItem(m_MenuBarElem_Memory, wxID_ANY, wxString(wxT("Preferences")) + wxT('\t') + wxT("Ctrl+P"), wxEmptyString, wxITEM_NORMAL);
+	this->m_MenuBarElem_Memory->Append(m_MenuBarItem_Preferences);
+	this->m_MenuBar->Append(this->m_MenuBarElem_Memory, wxT("Memory"));
 	this->SetMenuBar(this->m_MenuBar);
 
 	// Add the tool bar
@@ -69,7 +88,7 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	this->m_ToolBarElem_Save = this->m_ToolBar->AddTool(wxID_ANY, wxT("Save project"), wxBitmap(wxT("resources/save.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Save this project"), wxEmptyString, NULL);
 	this->m_ToolBarElem_Export = this->m_ToolBar->AddTool(wxID_ANY, wxT("Export image"), wxBitmap(wxT("resources/export.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Export the memory map as an image"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
-	this->m_ToolBarElem_NewItem = this->m_ToolBar->AddTool(wxID_ANY, wxT("New item"), wxBitmap(wxT("resources/newmem.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
+	this->m_ToolBarElem_NewItem = this->m_ToolBar->AddTool(wxID_ANY, wxT("New memory block"), wxBitmap(wxT("resources/newmem.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
 	this->m_ToolBarElem_Preferences = this->m_ToolBar->AddTool(wxID_ANY, wxT("Preferences"), wxBitmap(wxT("resources/preferences.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Change memory map preferences"), wxEmptyString, NULL);
 	this->m_ToolBar->Realize();
@@ -80,6 +99,13 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, "MemMapper", wxPoint(0, 0), wxSize(910
 	// Add event handlers
 	this->m_ProgramSplitter->Connect(wxEVT_COMMAND_SPLITTER_DOUBLECLICKED, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterDClick));
 	this->m_ProgramSplitter->Connect(wxEVT_COMMAND_SPLITTER_UNSPLIT, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterUnsplit), NULL, this);
+	this->m_MenuBarElem_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked), this, m_MenuBarItem_New->GetId());
+	this->m_MenuBarElem_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked), this, m_MenuBarItem_Open->GetId());
+	this->m_MenuBarElem_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked), this, m_MenuBarItem_Save->GetId());
+	this->m_MenuBarElem_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_SaveAsOnToolClicked), this, m_MenuBarItem_SaveAs->GetId());
+	this->m_MenuBarElem_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_ExportOnToolClicked), this, m_MenuBarItem_Export->GetId());
+	this->m_MenuBarElem_Memory->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked), this, m_MenuBarItem_NewItem->GetId());
+	this->m_MenuBarElem_Memory->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_PreferencesOnToolClicked), this, m_MenuBarItem_Preferences->GetId());
 	this->Connect(this->m_ToolBarElem_New->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked));
 	this->Connect(this->m_ToolBarElem_Open->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked));
 	this->Connect(this->m_ToolBarElem_Save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked));
@@ -93,6 +119,13 @@ Main::~Main()
 {
 	this->m_ProgramSplitter->Disconnect(wxEVT_COMMAND_SPLITTER_DOUBLECLICKED, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterDClick));
 	this->m_ProgramSplitter->Disconnect(wxEVT_COMMAND_SPLITTER_UNSPLIT, wxSplitterEventHandler(Main::m_ProgramSplitterOnSplitterUnsplit), NULL, this);
+	this->m_MenuBarElem_File->Unbind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked), this, m_MenuBarItem_New->GetId());
+	this->m_MenuBarElem_File->Unbind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked), this, m_MenuBarItem_Open->GetId());
+	this->m_MenuBarElem_File->Unbind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked), this, m_MenuBarItem_Save->GetId());
+	this->m_MenuBarElem_File->Unbind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_SaveAsOnToolClicked), this, m_MenuBarItem_SaveAs->GetId());
+	this->m_MenuBarElem_File->Unbind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_ExportOnToolClicked), this, m_MenuBarItem_Export->GetId());
+	this->m_MenuBarElem_Memory->Unbind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_NewItemOnToolClicked), this, m_MenuBarItem_NewItem->GetId());
+	this->m_MenuBarElem_Memory->Unbind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Main::m_ToolBarElem_PreferencesOnToolClicked), this, m_MenuBarItem_Preferences->GetId());
 	this->Disconnect(this->m_ToolBarElem_New->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_NewOnToolClicked));
 	this->Disconnect(this->m_ToolBarElem_Open->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_OpenOnToolClicked));
 	this->Disconnect(this->m_ToolBarElem_Save->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(Main::m_ToolBarElem_SaveOnToolClicked));
@@ -160,60 +193,12 @@ void Main::m_ToolBarElem_OpenOnToolClicked(wxCommandEvent& event)
 
 void Main::m_ToolBarElem_SaveOnToolClicked(wxCommandEvent& event)
 {
-	nlohmann::json appdata = 
-	{
-		{
-			"Settings", 
-			{
-				{"Mem Start", settings_memstart},
-				{"Mem Length", settings_memsize},
-				{"Mem Segments", settings_memsegments}
-			}
-		}, 
-		{
-			"Items", 
-			{
-				// Starts empty
-			}
-		}
-	};
+	this->SaveFile(false);
+}
 
-	// Add each item to the JSON file
-	if (this->list_Items.size() > 0)
-	{
-		int itemcount = 0;
-		std::list<void*>::iterator it;
-		for (it = this->list_Items.begin(); it != this->list_Items.end(); ++it)
-		{
-			Item* elem = (Item*)*it;
-			appdata["Items"][itemcount++] = {
-				{"Name", elem->GetName()},
-				{"Start", elem->GetMemStart()},
-				{"Length", elem->GetMemLength()},
-				{"Color", {elem->GetBackColor().Red(), elem->GetBackColor().Green(), elem->GetBackColor().Blue(), elem->GetBackColor().Blue()}},
-				{"TextColor", {elem->GetFontColor().Red(), elem->GetFontColor().Green(), elem->GetFontColor().Blue()}},
-				{"Alpha", elem->GetAlpha()},
-			};
-		}
-	}
-
-	// Open the file save dialogue
-	if (savePath.empty())
-	{
-		wxFileDialog fileDialogue(this, _("Save Memory Map"), "", "", "JSON files (*.json)|*.json", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-
-		// Ensure the user didn't cancel
-		if (fileDialogue.ShowModal() == wxID_CANCEL)
-			return;
-
-		// Write it to a file
-		savePath = std::string(fileDialogue.GetPath().ToStdString());
-	}
-
-	// Save the file
-	std::ofstream file(savePath);
-	file << appdata;
-	file.close();
+void Main::m_ToolBarElem_SaveAsOnToolClicked(wxCommandEvent& event)
+{
+	this->SaveFile(true);
 }
 
 void Main::m_ToolBarElem_ExportOnToolClicked(wxCommandEvent& event)
@@ -426,6 +411,64 @@ void Main::FixItemMoverButtons()
 		else
 			elem->SetDownButtonState(true);
 	}
+}
+
+void Main::SaveFile(bool newfile)
+{
+	nlohmann::json appdata = 
+	{
+		{
+			"Settings", 
+			{
+				{"Mem Start", settings_memstart},
+				{"Mem Length", settings_memsize},
+				{"Mem Segments", settings_memsegments}
+			}
+		}, 
+		{
+			"Items",  
+			{
+				// Starts empty
+			}
+		}
+	};
+
+	// Add each item to the JSON file
+	if (this->list_Items.size() > 0)
+	{
+		int itemcount = 0;
+		std::list<void*>::iterator it;
+		for (it = this->list_Items.begin(); it != this->list_Items.end(); ++it)
+		{
+			Item* elem = (Item*)*it;
+			appdata["Items"][itemcount++] = {
+				{"Name", elem->GetName()},
+				{"Start", elem->GetMemStart()},
+				{"Length", elem->GetMemLength()},
+				{"Color", {elem->GetBackColor().Red(), elem->GetBackColor().Green(), elem->GetBackColor().Blue(), elem->GetBackColor().Blue()}},
+				{"TextColor", {elem->GetFontColor().Red(), elem->GetFontColor().Green(), elem->GetFontColor().Blue()}},
+				{"Alpha", elem->GetAlpha()},
+			};
+		}
+	}
+
+	// Open the file save dialogue
+	if (savePath.empty() || newfile)
+	{
+		wxFileDialog fileDialogue(this, _("Save Memory Map"), "", "", "JSON files (*.json)|*.json", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+
+		// Ensure the user didn't cancel
+		if (fileDialogue.ShowModal() == wxID_CANCEL)
+			return;
+
+		// Write it to a file
+		savePath = std::string(fileDialogue.GetPath().ToStdString());
+	}
+
+	// Save the file
+	std::ofstream file(savePath);
+	file << appdata;
+	file.close();
 }
 
 void Main::RefreshDrawing()
