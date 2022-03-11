@@ -26,8 +26,7 @@ std::string savePath = "";
 
 Main::Main() : wxFrame(nullptr, wxID_ANY, PROGRAM_NAME, wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
 {
-	// Initialize wxWidgets
-	wxInitAllImageHandlers();
+	// Initialize the window
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
 	// Add the window splitter with a scroll bar
@@ -37,7 +36,6 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, PROGRAM_NAME, wxPoint(0, 0), wxSize(91
 	this->m_ProgramSplitter->SetMinSize(wxSize(DEFAULT_SASH_POS, -1));
 	this->m_ItemsScrollList = new wxScrolledWindow(this->m_ProgramSplitter, wxID_ANY, wxDefaultPosition, wxSize(DEFAULT_SASH_POS, -1), wxVSCROLL);
 	this->m_ItemsScrollList->SetScrollRate(0, 5);
-	this->m_ItemsScrollList->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
 
 	// Add the sizer for all of our items
 	this->m_ItemsSizer = new wxBoxSizer(wxVERTICAL);
@@ -59,8 +57,6 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, PROGRAM_NAME, wxPoint(0, 0), wxSize(91
 	// Add the menu bar
 	this->m_MenuBar = new wxMenuBar(0);
 	this->m_MenuBarElem_File = new wxMenu();
-	this->m_MenuBar = new wxMenuBar(0);
-	this->m_MenuBarElem_File = new wxMenu();
 	this->m_MenuBarItem_New = new wxMenuItem(m_MenuBarElem_File, wxID_ANY, wxString(wxT("New")) + wxT('\t') + wxT("Ctrl+N"), wxEmptyString, wxITEM_NORMAL);
 	this->m_MenuBarElem_File->Append(m_MenuBarItem_New);
 	this->m_MenuBarItem_Open = new wxMenuItem(m_MenuBarElem_File, wxID_ANY, wxString(wxT("Open")) + wxT('\t') + wxT("Ctrl+O"), wxEmptyString, wxITEM_NORMAL);
@@ -76,6 +72,7 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, PROGRAM_NAME, wxPoint(0, 0), wxSize(91
 	this->m_MenuBarElem_Memory = new wxMenu();
 	this->m_MenuBarItem_NewItem = new wxMenuItem(m_MenuBarElem_Memory, wxID_ANY, wxString(wxT("New Memory Block")) + wxT('\t') + wxT("Ctrl+M"), wxEmptyString, wxITEM_NORMAL);
 	this->m_MenuBarElem_Memory->Append(m_MenuBarItem_NewItem);
+	this->m_MenuBarElem_Memory->AppendSeparator();
 	this->m_MenuBarItem_Preferences = new wxMenuItem(m_MenuBarElem_Memory, wxID_ANY, wxString(wxT("Preferences")) + wxT('\t') + wxT("Ctrl+P"), wxEmptyString, wxITEM_NORMAL);
 	this->m_MenuBarElem_Memory->Append(m_MenuBarItem_Preferences);
 	this->m_MenuBar->Append(this->m_MenuBarElem_Memory, wxT("Memory"));
@@ -83,14 +80,14 @@ Main::Main() : wxFrame(nullptr, wxID_ANY, PROGRAM_NAME, wxPoint(0, 0), wxSize(91
 
 	// Add the tool bar
 	this->m_ToolBar = this->CreateToolBar(wxTB_HORIZONTAL|wxTB_FLAT, wxID_ANY);
-	this->m_ToolBarElem_New = this->m_ToolBar->AddTool(wxID_ANY, wxT("New project"), wxBitmap(wxT("resources/new.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new project"), wxEmptyString, NULL);
-	this->m_ToolBarElem_Open = this->m_ToolBar->AddTool(wxID_ANY, wxT("Open project"), wxBitmap(wxT("resources/open.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Load a project"), wxEmptyString, NULL);
-	this->m_ToolBarElem_Save = this->m_ToolBar->AddTool(wxID_ANY, wxT("Save project"), wxBitmap(wxT("resources/save.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Save this project"), wxEmptyString, NULL);
-	this->m_ToolBarElem_Export = this->m_ToolBar->AddTool(wxID_ANY, wxT("Export image"), wxBitmap(wxT("resources/export.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Export the memory map as an image"), wxEmptyString, NULL);
+	this->m_ToolBarElem_New = this->m_ToolBar->AddTool(wxID_ANY, wxT("New project"), iconbm_new, wxNullBitmap, wxITEM_NORMAL, wxT("Create a new project"), wxEmptyString, NULL);
+	this->m_ToolBarElem_Open = this->m_ToolBar->AddTool(wxID_ANY, wxT("Open project"), iconbm_open, wxNullBitmap, wxITEM_NORMAL, wxT("Load a project"), wxEmptyString, NULL);
+	this->m_ToolBarElem_Save = this->m_ToolBar->AddTool(wxID_ANY, wxT("Save project"), iconbm_save, wxNullBitmap, wxITEM_NORMAL, wxT("Save this project"), wxEmptyString, NULL);
+	this->m_ToolBarElem_Export = this->m_ToolBar->AddTool(wxID_ANY, wxT("Export image"), iconbm_export, wxNullBitmap, wxITEM_NORMAL, wxT("Export the memory map as an image"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
-	this->m_ToolBarElem_NewItem = this->m_ToolBar->AddTool(wxID_ANY, wxT("New memory block"), wxBitmap(wxT("resources/newmem.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
+	this->m_ToolBarElem_NewItem = this->m_ToolBar->AddTool(wxID_ANY, wxT("New memory block"), iconbm_newmem, wxNullBitmap, wxITEM_NORMAL, wxT("Create a new memory block"), wxEmptyString, NULL);
 	this->m_ToolBar->AddSeparator();
-	this->m_ToolBarElem_Preferences = this->m_ToolBar->AddTool(wxID_ANY, wxT("Preferences"), wxBitmap(wxT("resources/preferences.png"), wxBITMAP_TYPE_ANY), wxNullBitmap, wxITEM_NORMAL, wxT("Change memory map preferences"), wxEmptyString, NULL);
+	this->m_ToolBarElem_Preferences = this->m_ToolBar->AddTool(wxID_ANY, wxT("Preferences"), iconbm_preferences, wxNullBitmap, wxITEM_NORMAL, wxT("Change memory map preferences"), wxEmptyString, NULL);
 	this->m_ToolBar->Realize();
 
 	// Create the shortcuts
@@ -506,8 +503,8 @@ void Main::RefreshDrawing()
 void Main::Paint(wxDC* dc, wxSize framesize)
 {
 	wxString text;
-	float rectx, recty, rectw, recth;
-	float textx, texty, textw, texth;
+	double rectx, recty, rectw, recth;
+	double textx, texty, textw, texth;
 	std::list<void*>::iterator it;
 
 	// Draw the background
@@ -545,8 +542,8 @@ void Main::Paint(wxDC* dc, wxSize framesize)
 	// Draw each item into the memory map
 	for (it = this->list_Items.begin(); it != this->list_Items.end(); ++it)
 	{
-		float rectlen = settings_memsize;
-		float elemx, elemy, elemw, elemh;
+		double rectlen = settings_memsize;
+		double elemx, elemy, elemw, elemh;
 		Item* elem = (Item*)*it;
 
 		// Find out how much of the rectangle this element occupies
@@ -557,7 +554,7 @@ void Main::Paint(wxDC* dc, wxSize framesize)
 
 		// Draw the rectangle
 		dc->SetPen(*wxBLACK_PEN);
-		dc->SetBrush(elem->GetBackColor());
+		dc->SetBrush(wxColor(elem->GetBackColor().Red(), elem->GetBackColor().Green(), elem->GetBackColor().Blue(), elem->GetAlpha()));
 		dc->DrawRectangle(round(elemx), round(elemy), round(elemw), round(elemh));
 
 		// Draw the item name
@@ -574,8 +571,8 @@ void Main::Paint(wxDC* dc, wxSize framesize)
 	// Handle memory segments
 	if (settings_memsegments > 1)
 	{
-		int segmentdis = recth/settings_memsegments;
-		int segmentsize = settings_memsize/settings_memsegments;
+		double segmentdis = recth/settings_memsegments;
+		double segmentsize = settings_memsize/settings_memsegments;
 
 		// Set the pen to black
 		dc->SetPen(*wxBLACK_PEN);
@@ -585,11 +582,11 @@ void Main::Paint(wxDC* dc, wxSize framesize)
 		// Draw the segment line and text
 		for (int i=1; i<settings_memsegments; i++)
 		{
-			int segmenty = recty+i*segmentdis;
-			dc->DrawLine(rectx, segmenty, rectx+rectw, segmenty);
+			double segmenty = recty+i*segmentdis;
+			dc->DrawLine(round(rectx), round(segmenty), round(rectx+rectw), round(segmenty));
 
 			// Draw the memory label
-			text = wxString::Format(wxT("0x%08x"), settings_memstart+segmentsize*i);
+			text = wxString::Format(wxT("0x%08x"), (int)(settings_memstart+segmentsize*i));
 			framesize = dc->GetTextExtent(text);
 			textw = framesize.x;
 			texth = framesize.y;

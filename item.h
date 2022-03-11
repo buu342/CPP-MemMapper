@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning (disable : 4996)
+
 #include <list>
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>

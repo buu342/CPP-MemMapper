@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning (disable : 4996)
+
 #include <list>
 #include <iterator>
 
@@ -33,6 +35,21 @@ typedef struct IUnknown IUnknown;
 #include <wx/rawbmp.h>
 
 #define PROGRAM_NAME "MemMapper"
+
+extern wxIcon   iconbm_prog;
+extern wxBitmap iconbm_new;
+extern wxBitmap iconbm_open;
+extern wxBitmap iconbm_save;
+extern wxBitmap iconbm_export;
+extern wxBitmap iconbm_newmem;
+extern wxBitmap iconbm_preferences;
+extern wxBitmap iconbm_font;
+extern wxBitmap iconbm_fill;
+extern wxBitmap iconbm_up;
+extern wxBitmap iconbm_up_disabled;
+extern wxBitmap iconbm_down;
+extern wxBitmap iconbm_down_disabled;
+extern wxBitmap iconbm_delete;
 
 class Main : public wxFrame
 {

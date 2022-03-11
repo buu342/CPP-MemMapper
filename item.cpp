@@ -41,7 +41,7 @@ Item::Item(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& si
 	m_ItemElem_Sizer1->Add(m_ItemElem_LabelName, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 	this->m_ItemElem_InputName = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
 	m_ItemElem_Sizer1->Add(m_ItemElem_InputName, 0, wxALL|wxEXPAND, 5);
-	this->m_ItemElem_ButtonFontColor = new wxBitmapButton(this, wxID_ANY, wxBitmap(wxT("resources/font.png"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW|0);
+	this->m_ItemElem_ButtonFontColor = new wxBitmapButton(this, wxID_ANY, iconbm_font, wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW|0);
 	m_ItemElem_Sizer1->Add(m_ItemElem_ButtonFontColor, 0, wxALL, 5);
 	m_ItemElem_DataSizer->Add(m_ItemElem_Sizer1, 1, wxEXPAND, 5);
 
@@ -53,7 +53,7 @@ Item::Item(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& si
 	m_ItemElem_Sizer2->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_SPECIFIED);
 
 	// Add the elements of the second data row
-	this->m_ItemElem_ButtonColor = new wxBitmapButton(this, wxID_ANY, wxBitmap(wxT("resources/fill.png"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW|0);
+	this->m_ItemElem_ButtonColor = new wxBitmapButton(this, wxID_ANY, iconbm_fill, wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW|0);
 	m_ItemElem_Sizer2->Add(this->m_ItemElem_ButtonColor, 0, wxALL, 5);
 	this->m_ItemElem_LabelAlpha = new wxStaticText(this, wxID_ANY, wxT("Alpha:"), wxDefaultPosition, wxDefaultSize, 0);
 	this->m_ItemElem_LabelAlpha->Wrap(-1);
@@ -93,13 +93,13 @@ Item::Item(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& si
 	m_ItemElem_PosManipSizer = new wxBoxSizer(wxVERTICAL);
 
 	// Add the three manipulation button
-	this->m_ItemElem_ButtonUp = new wxBitmapButton(this, wxID_ANY, wxBitmap(wxT("resources/up.png"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW);
-	this->m_ItemElem_ButtonUp->SetBitmapDisabled(wxBitmap(wxT("resources/up_disabled.png"), wxBITMAP_TYPE_ANY));
+	this->m_ItemElem_ButtonUp = new wxBitmapButton(this, wxID_ANY, iconbm_up, wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW);
+	this->m_ItemElem_ButtonUp->SetBitmapDisabled(iconbm_up_disabled);
 	m_ItemElem_PosManipSizer->Add(this->m_ItemElem_ButtonUp, 0, wxALL, 5);
-	this->m_ItemElem_ButtonDown = new wxBitmapButton(this, wxID_ANY, wxBitmap(wxT("resources/down.png"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW);
-	this->m_ItemElem_ButtonDown->SetBitmapDisabled(wxBitmap(wxT("resources/down_disabled.png"), wxBITMAP_TYPE_ANY));
+	this->m_ItemElem_ButtonDown = new wxBitmapButton(this, wxID_ANY, iconbm_down, wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW);
+	this->m_ItemElem_ButtonDown->SetBitmapDisabled(iconbm_down_disabled);
 	m_ItemElem_PosManipSizer->Add(this->m_ItemElem_ButtonDown, 0, wxALL, 5);
-	this->m_ItemElem_ButtonDelete = new wxBitmapButton(this, wxID_ANY, wxBitmap(wxT("resources/delete.png"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW);
+	this->m_ItemElem_ButtonDelete = new wxBitmapButton(this, wxID_ANY, iconbm_delete, wxDefaultPosition, wxSize(24,24), wxBU_AUTODRAW);
 	m_ItemElem_PosManipSizer->Add(this->m_ItemElem_ButtonDelete, 0, wxALL, 5);
 	m_ItemElem_Sizer0->Add(m_ItemElem_PosManipSizer, 1, 0, 5);
 

@@ -18,7 +18,6 @@ int settings_memsegments = DEFAULTSETTING_MEMSEGMENTS;
 Settings::Settings( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
-	this->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
 
 	// Create the sizers to hold our elements
 	wxBoxSizer* m_SettingsElem_Sizer0;

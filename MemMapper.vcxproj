@@ -21,6 +21,21 @@
   <ItemGroup>
     <ClInclude Include="app.h" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resources\icon_delete.h" />
+    <ClInclude Include="resources\icon_down.h" />
+    <ClInclude Include="resources\icon_down_disabled.h" />
+    <ClInclude Include="resources\icon_export.h" />
+    <ClInclude Include="resources\icon_fill.h" />
+    <ClInclude Include="resources\icon_font.h" />
+    <ClInclude Include="resources\icon_new.h" />
+    <ClInclude Include="resources\icon_newmem.h" />
+    <ClInclude Include="resources\icon_open.h" />
+    <ClInclude Include="resources\icon_preferences.h" />
+    <ClInclude Include="resources\icon_prog.h" />
+    <ClInclude Include="resources\icon_save.h" />
+    <ClInclude Include="resources\icon_up.h" />
+    <ClInclude Include="resources\icon_up_disabled.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="main.h" />
@@ -50,6 +65,9 @@
     <Image Include="resources\save.png" />
     <Image Include="resources\up.png" />
     <Image Include="resources\up_disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MemMapper.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -135,7 +153,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(WXWIN)/include; $(WXWIN)/include/msvc</AdditionalIncludeDirectories>
     </ClCompile>
