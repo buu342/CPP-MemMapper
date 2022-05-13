@@ -1,4 +1,4 @@
-CODEFILES   = app.cpp main.cpp item.cpp settings.cpp
+CODEFILES   = app.cpp main.cpp item.cpp settings.cpp export.cpp
 CODEOBJECTS = $(CODEFILES:.cpp=.o)
 PROGNAME = MemMapper
 

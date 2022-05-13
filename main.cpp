@@ -3,6 +3,7 @@
 #include "main.h"
 #include "item.h"
 #include "settings.h"
+#include "export.h"
 #include "json.hpp"
 
 
@@ -27,6 +28,7 @@ std::string savePath = "";
 Main::Main() : wxFrame(nullptr, wxID_ANY, PROGRAM_NAME, wxPoint(0, 0), wxSize(910, 700), wxDEFAULT_FRAME_STYLE)
 {
 	// Initialize the window
+	this->list_Items = {};
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
 	// Add the window splitter with a scroll bar
@@ -219,19 +221,8 @@ void Main::m_ToolBarElem_SaveAsOnToolClicked(wxCommandEvent& event)
 
 void Main::m_ToolBarElem_ExportOnToolClicked(wxCommandEvent& event)
 {
-	wxFileDialog fileDialogue(this, _("Export Memory Map"), "", "", "PNG image (*.png)|*.png", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-
-	// Ensure the user didn't cancel
-	if (fileDialogue.ShowModal() == wxID_CANCEL)
-		return;
-
-	// Generate the image
-	wxSize imgsize(512, 1024);
-	wxBitmap image(imgsize, 32);
-	wxMemoryDC dc(image);
-	dc.SetBrush(*wxWHITE_BRUSH);
-	this->Paint(&dc, imgsize);
-	image.ConvertToImage().SaveFile(fileDialogue.GetPath(), wxBITMAP_TYPE_PNG);
+	Export* exp = new Export(this);
+	exp->ShowExport();
 }
 
 void Main::m_ToolBarElem_NewItemOnToolClicked(wxCommandEvent& event)

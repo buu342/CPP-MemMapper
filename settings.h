@@ -23,9 +23,6 @@ class Settings : public wxDialog
 		void m_SettingsElem_SpinMemSegmentsOnSpinCtrl(wxSpinEvent& event);
 
 	public:
-
 		Settings( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-
 		~Settings();
-
 };
